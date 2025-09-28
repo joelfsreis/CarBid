@@ -9,4 +9,5 @@ export type Car = {
   auctionDateTime: string;
   startingBid: number;
   favourite: boolean;
+  bids: number[];
 };

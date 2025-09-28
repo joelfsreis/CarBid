@@ -9,6 +9,8 @@ import {
 import Home from '../screens/Home';
 import Details from '../screens/Details';
 import Filters from '../screens/Filters';
+import HeaderRight from '../components/HeaderRight';
+import HeaderLeft from '../components/HeaderLeft';
 
 const defaultOptions: NativeStackNavigationOptions = {
   headerTitleAlign: 'center',
@@ -18,15 +20,24 @@ export const RootStack = createNativeStackNavigator({
   screens: {
     Home: {
       screen: Home,
-      options: { ...defaultOptions, title: 'CarBid' },
+      options: { ...defaultOptions, title: 'CarBid', headerRight: HeaderRight },
     },
     Details: {
       screen: Details,
-      options: { ...defaultOptions, title: 'Car Details' },
+      options: {
+        ...defaultOptions,
+        title: 'Car Details',
+        headerLeft: HeaderLeft,
+      },
     },
     Filters: {
       screen: Filters,
-      options: { ...defaultOptions, title: 'Filters' },
+      options: {
+        headerShown: false,
+        animation: 'none',
+        presentation: 'transparentModal',
+        contentStyle: { flex: 1, backgroundColor: '#D3D3D380' },
+      },
     },
   },
 });
