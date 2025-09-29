@@ -22,13 +22,15 @@ export const fetchCars = async (): Promise<Car[]> => {
       .flatMap(models => Array.from(models))
       .sort()
       .map(model => ({ label: model, value: model })),
-    model: Array.from(selectInfoMap.keys()).reduce((acc, make) => {
-      const models = Array.from(selectInfoMap.get(make) || []).sort();
-
-      const m: { label: string; value: string }[] = [];
-      m.push(...models.map(model => ({ label: model, value: model })));
-      return { ...acc, [make]: m };
-    }, {}),
+    model: Array.from(selectInfoMap.keys()).reduce(
+      (acc, make) => ({
+        ...acc,
+        [make]: Array.from(selectInfoMap.get(make) || [])
+          .sort()
+          .map(model => ({ label: model, value: model })),
+      }),
+      {},
+    ),
   });
 
   return data;
