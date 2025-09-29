@@ -4,7 +4,7 @@ import { Car } from '../api/models/Car';
 type SelectOption = { label: string; value: string };
 type SelectOptionsList = {
   make: SelectOption[];
-  model: SelectOption[];
+  model: { [key: string]: SelectOption[] };
   models: SelectOption[];
 };
 export type FilterTypes = 'eq' | 'gte' | 'lte' | 'gt' | 'lt';
@@ -23,13 +23,20 @@ type FilterOptionsState = {
   selectOptions: SelectOptionsList;
   updateSelectedFilters: (filter: Filter) => void;
   resetSelectedFilters: () => void;
+  removeSelectedFilter: (key: string) => void;
   setSelectOptions: (options: SelectOptionsList) => void;
 };
 
 export const useFilterOptionsState = create<FilterOptionsState>(set => ({
   selectedFilters: [],
-  selectOptions: { make: [], model: [], models: [] },
+  selectOptions: { make: [], model: {}, models: [] },
   setSelectOptions: options => set({ selectOptions: options }),
+  removeSelectedFilter: (filterKey: string) =>
+    set(state => ({
+      selectedFilters: state.selectedFilters.filter(
+        f => f.filterKey !== filterKey,
+      ),
+    })),
   resetSelectedFilters: () => set({ selectedFilters: [] }),
   updateSelectedFilters: (filter: Filter) =>
     set(state => ({

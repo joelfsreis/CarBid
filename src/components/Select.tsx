@@ -9,9 +9,16 @@ type SelectProps = Pick<
   'label' | 'options' | 'selectedValue'
 > & {
   filter: 'make' | 'model';
+  onChangeCb?: () => void;
 };
 
-const Select = ({ filter, label, options, selectedValue }: SelectProps) => {
+const Select = ({
+  filter,
+  label,
+  options,
+  selectedValue,
+  onChangeCb,
+}: SelectProps) => {
   const { updateSelectedFilters } = useFilterOptionsState();
   return (
     <DropdownSelect
@@ -28,6 +35,7 @@ const Select = ({ filter, label, options, selectedValue }: SelectProps) => {
           filterValue: value as string,
           filterType: 'eq',
         });
+        onChangeCb?.();
       }}
     />
   );

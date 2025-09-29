@@ -22,6 +22,7 @@ const Filters = () => {
     selectOptions,
     selectedFilters,
     updateSelectedFilters,
+    removeSelectedFilter,
     resetSelectedFilters,
   } = useFilterOptionsState();
 
@@ -68,10 +69,17 @@ const Filters = () => {
             options={selectOptions.make}
             selectedValue={dropdownValues.make?.value}
             filter="make"
+            onChangeCb={() => {
+              dropdownValues.model?.value && removeSelectedFilter('model');
+            }}
           />
           <Select
             label="Model"
-            options={selectOptions.model}
+            options={
+              dropdownValues.make?.value
+                ? selectOptions.model[dropdownValues.make.value as string] || []
+                : selectOptions.models
+            }
             selectedValue={dropdownValues.model?.value}
             filter="model"
           />
