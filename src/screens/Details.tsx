@@ -72,9 +72,12 @@ const Details = ({ route }: DetailsProps) => {
       <ScrollView contentContainerStyle={styles.descriptionContainer}>
         <View style={styles.containerRow}>
           <Ionicons name="car-sport" size={SPACING.xlarge} />
-          <Text
-            style={commonStyles.title}
-          >{`${car.make} ${car.model} (${car.engineSize})`}</Text>
+          <View style={commonStyles.flex}>
+            <Text
+              numberOfLines={3}
+              style={commonStyles.title}
+            >{`${car.make} ${car.model} (${car.engineSize})`}</Text>
+          </View>
         </View>
         {rows.map(({ label, description, children }) => (
           <View key={label} style={styles.containerRow}>
