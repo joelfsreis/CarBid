@@ -1,4 +1,7 @@
 /* eslint-disable no-bitwise */
+
+import { add, formatDistanceToNow, isAfter } from 'date-fns';
+
 // Small, fast seeded PRNG (Mulberry32)
 function mulberry32(seed: number) {
   return function () {
@@ -31,3 +34,9 @@ export function randomDate6m(index: number): Date {
   const t = startMs + Math.floor(rng() * (spanMs + 1));
   return new Date(t);
 }
+
+export const formatBidDate = (date: Date | string) => {
+  return isAfter(new Date(), add(new Date(date), { days: 1 }))
+    ? { ended: true, message: 'Auction ended' }
+    : { ended: false, message: formatDistanceToNow(new Date(date)) };
+};

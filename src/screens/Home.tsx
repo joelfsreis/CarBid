@@ -13,6 +13,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation';
 import useFilters from '../hooks/useFilters';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { commonStyles } from '../utils/theme';
 
 const Home = () => {
   const { bottom } = useSafeAreaInsets();
@@ -31,37 +32,35 @@ const Home = () => {
   );
 
   const ListEmptyComponent = useCallback(() => {
-    return isLoading ? (
-      <ActivityIndicator />
-    ) : (
-      <Text style={styles.alignText}>No cars available</Text>
+    return (
+      <View style={styles.empty}>
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.alignText}>No cars available</Text>
+        )}
+      </View>
     );
   }, [isLoading]);
 
   return (
-    <View style={[styles.container, { paddingBottom: bottom }]}>
-      <FlatList<Car>
-        data={filteredCars}
-        renderItem={renderItem}
-        ListEmptyComponent={ListEmptyComponent}
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        keyExtractor={item => item.id.toString()}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    <FlatList<Car>
+      data={filteredCars}
+      renderItem={renderItem}
+      ListEmptyComponent={ListEmptyComponent}
+      style={commonStyles.flex}
+      contentContainerStyle={[styles.content, { paddingBottom: bottom }]}
+      keyExtractor={item => item.id.toString()}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   content: {
     flexGrow: 1,
-    alignContent: 'center',
-    justifyContent: 'center',
   },
+  empty: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   alignText: { textAlign: 'center' },
 });
 

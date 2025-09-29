@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Car } from '../api/models/Car';
-import { SPACING } from '../utils/theme';
+import { commonStyles, SPACING } from '../utils/theme';
 import FavoriteButton from './FavoriteButton';
 import useMutateCar from '../hooks/query/useMutateCar';
+import { formatBidDate } from '../utils/dates';
+import Ionicons from '@react-native-vector-icons/ionicons';
 
 const SIZE = 80;
 const IMG_PLACEHOLDER =
@@ -16,6 +18,12 @@ type CarCardProps = {
 
 const CarCard = ({ car, onPress }: CarCardProps) => {
   const { mutate } = useMutateCar();
+
+  const bidData = useMemo(
+    () => formatBidDate(car.auctionDateTime),
+    [car.auctionDateTime],
+  );
+
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.container}>
@@ -28,13 +36,27 @@ const CarCard = ({ car, onPress }: CarCardProps) => {
           />
         </View>
         <View style={styles.infoContainer}>
-          <Text>{car.make}</Text>
-          <Text>{car.model}</Text>
-          <Text>{car.year}</Text>
-        </View>
-        <View>
-          <Text>{`${car.startingBid}€`}</Text>
-          <Text>{new Date(car.auctionDateTime).toLocaleDateString()}</Text>
+          <Text
+            style={commonStyles.bold}
+          >{`${car.make} ${car.model} (${car.engineSize}) ${car.year}`}</Text>
+          <Text style={commonStyles.label}>
+            {bidData.ended ? bidData.message : `Auction in: ${bidData.message}`}
+          </Text>
+          <Text>{`Starting Bid: ${car.startingBid.toLocaleString()} €`}</Text>
+          {car.bids.length ? (
+            <View style={styles.bidContainer}>
+              <Ionicons
+                name="alert-circle-sharp"
+                size={SPACING.large}
+                color="purple"
+              />
+              <Text style={[commonStyles.label]}>
+                {`Your current Bid: ${car.bids[
+                  car.bids.length - 1
+                ].toLocaleString()} €`}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <FavoriteButton
           favorite={car.favourite}
@@ -69,6 +91,11 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
+    gap: SPACING.xsmall,
+  },
+  bidContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: SPACING.xsmall,
   },
 });

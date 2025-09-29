@@ -1,50 +1,33 @@
-import { Car } from "../api/models/Car";
-import { Filter } from "../state/useFilterOptionsState";
-
-export const keyBy = <T>(
-  collection: T[],
-  iteratee: (item: T) => string | number,
-) => {
-  const result: (string | number)[] = [];
-  const map = collection.reduce((acc, element) => {
-    const key = iteratee(element);
-    acc[key] = element;
-    result.push(key);
-    return acc;
-  }, {} as Record<string | number, T>);
-  return { map, result };
-};
+import { Car } from '../api/models/Car';
+import { Filter } from '../state/useFilterOptionsState';
 
 const sanitizeFilterInput = (
-  value: string | number | boolean | Date,
-  filterValue: string | number | boolean | Date,
-  type: 'string' | 'number' | 'boolean' | 'date',
+  value: string | number | boolean | Date | number | number[],
+  filterValue: string | number | boolean | Date | number[],
+  type?: 'date',
 ) => {
-  switch (type) {
+  switch (typeof value) {
     case 'string':
-      return [String(value), String(filterValue)];
+      return type === 'date'
+        ? [+new Date(value), +new Date(filterValue as string)]
+        : [String(value), String(filterValue)];
     case 'number':
     case 'boolean':
       return [Number(value), Number(filterValue)];
-    case 'date':
-      return [
-        +new Date(typeof value === 'boolean' ? Number(value) : value),
-        +new Date(
-          typeof filterValue === 'boolean' ? Number(filterValue) : filterValue,
-        ),
-      ];
+    case 'object':
+      return [];
   }
 };
 
 export const filterEval = (car: Car) => {
   return function filter({
-    filter: filterKey,
+    filter: fKey,
     filterValue: filterValueUnformatted,
     filterType,
     filterValueType,
-  }: Filter) {
+  }: Filter & { filter: keyof Car }) {
     const [value, filterValue] = sanitizeFilterInput(
-      car[filterKey],
+      car[fKey],
       filterValueUnformatted,
       filterValueType,
     );

@@ -1,13 +1,15 @@
 import { StaticScreenProps } from '@react-navigation/native';
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Car } from '../api/models/Car';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FavoriteButton from '../components/FavoriteButton';
-import { SPACING } from '../utils/theme';
+import { commonStyles, SPACING } from '../utils/theme';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import useMutateCar from '../hooks/query/useMutateCar';
 import useCarDetails from '../hooks/useCarDetails';
+import Button from '../components/Button';
+import { formatBidDate } from '../utils/dates';
 
 const BID = 500;
 const LOREM_IPSUM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
@@ -23,6 +25,11 @@ const Details = ({ route }: DetailsProps) => {
   const history = useMemo(() => {
     return car?.bids.length ? car.bids[car.bids.length - 1] : undefined;
   }, [car?.bids]);
+
+  const bidData = useMemo(
+    () => formatBidDate(car?.auctionDateTime || new Date()),
+    [car?.auctionDateTime],
+  );
 
   const rows = useMemo(() => {
     return car
@@ -40,17 +47,17 @@ const Details = ({ route }: DetailsProps) => {
           },
           {
             label: 'Start auction in',
-            description: new Date(car.auctionDateTime).toLocaleString(),
+            description: bidData.message,
             children: (
               <Ionicons name="calendar-outline" size={SPACING.medium} />
             ),
           },
         ]
       : [];
-  }, [car]);
+  }, [bidData.message, car]);
 
   return car ? (
-    <View style={[styles.container, { paddingBottom: bottom }]}>
+    <View style={[commonStyles.flex, { paddingBottom: bottom }]}>
       <View>
         <View style={styles.img}>
           <Text>Image Placeholder</Text>
@@ -66,46 +73,44 @@ const Details = ({ route }: DetailsProps) => {
         <View style={styles.containerRow}>
           <Ionicons name="car-sport" size={SPACING.xlarge} />
           <Text
-            style={styles.title}
+            style={commonStyles.title}
           >{`${car.make} ${car.model} (${car.engineSize})`}</Text>
         </View>
         {rows.map(({ label, description, children }) => (
           <View key={label} style={styles.containerRow}>
             {children}
-            <Text style={styles.bold}>{label}:</Text>
+            <Text style={commonStyles.bold}>{label}:</Text>
             {description ? <Text>{description}</Text> : null}
           </View>
         ))}
         <View style={styles.containerCol}>
-          <Text style={styles.bold}>Description:</Text>
+          <Text style={commonStyles.bold}>Description:</Text>
           <Text>{LOREM_IPSUM}</Text>
         </View>
         {history ? (
           <View style={[styles.containerRow, { marginTop: SPACING.large }]}>
             <Ionicons name="warning-outline" size={SPACING.medium} />
-            <Text style={styles.bold}>Your Last Bid:</Text>
+            <Text style={commonStyles.bold}>Your Last Bid:</Text>
             <Text>{`${Number(history).toLocaleString()} €`}</Text>
           </View>
         ) : null}
       </ScrollView>
-      <Pressable
-        onPress={() => {
-          mutate({ ...car, bids: [(history ?? car.startingBid) + BID] });
-        }}
-      >
-        <View style={styles.button}>
-          <Ionicons name="hammer-outline" size={SPACING.medium} color="white" />
-          <Text style={styles.text}>
-            {history ? 'Increase Bid' : 'Place Bid'}
-          </Text>
-        </View>
-      </Pressable>
+      <View style={{ padding: SPACING.medium }}>
+        <Button
+          onPress={() => {
+            mutate({ ...car, bids: [(history ?? car.startingBid) + BID] });
+          }}
+          iconName="hammer-outline"
+          disabled={bidData.ended}
+        >
+          {history ? 'Increase Bid' : 'Place Bid'}
+        </Button>
+      </View>
     </View>
   ) : null;
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   absolute: {
     position: 'absolute',
     top: SPACING.medium,
@@ -131,22 +136,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  button: {
-    padding: SPACING.medium,
-    backgroundColor: 'purple',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: SPACING.small,
-    margin: SPACING.medium,
-    gap: SPACING.small,
-    flexDirection: 'row',
-  },
-  text: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  bold: { fontWeight: 'bold' },
-  title: { fontSize: SPACING.large, fontWeight: 'bold' },
 });
 
 export default Details;
